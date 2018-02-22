@@ -10,7 +10,8 @@
           <img class="addFavlist img-responsive" src="../assets/images/addFav.svg" alt="" v-on:click="addFavList()">
         </div>
         <div>
-          <p v-bind:class="showMore ? ' ' : 'lessDisc'" v-html="playlist_detail.desc"></p>
+          <p v-bind:class="showMore ? 'moreDisc' : 'lessDisc'" v-html="playlist_detail.desc"></p>
+          <p v-if="!showMore">...</p>
           <span class="glyphicon glyphicon-menu-down pull-right" v-bind:class="showMore? 'showLessBtn' : 'showMoreBtn'" v-on:click="showMoreLess()"></span>
           <span class="glyphicon glyphicon-hand-right redIcon"></span><span class="p_c_tab" v-on:click="showComment()" v-text="commentShow? '查看歌曲列表':'查看用户评论'"></span>
         </div>
@@ -27,7 +28,7 @@
                 <th>时长</th>
               </tr>
             </thead>
-            <tbody v-for="(song, index) in playlist" align="center" class="table-striped songIdBox" v-bind:data-id="song.id" >
+            <tbody v-for="(song, index) in playlist" align="center" class="table-striped songIdBox" v-bind:data-id="song.id" :key="index">
               <tr>
                 <td>
                   <div class="isliked">
@@ -51,51 +52,65 @@
 </template>
 
 <script>
-import moment from 'moment'
-import { mapState, mapActions, mapGetters} from 'vuex'
-import vComment from './comment'
+import moment from "moment";
+import { mapState, mapActions, mapGetters } from "vuex";
+import vComment from "./comment";
 
 export default {
-  name: 'playlist',
-  data () {
+  name: "playlist",
+  data() {
     return {
-      msg: 'this is playlist',
-      apiUrl:'http://localhost:3011/playlist/',
-      apiUrl1:'http://localhost:3011/song_list/',
+      msg: "this is playlist",
+      apiUrl: "http://localhost:3011/playlist/",
+      apiUrl1: "http://localhost:3011/song_list/",
       playlist_detail: [],
-      artists:[],
-      isLiked:false,
-      addFavUrl:'http://localhost:3011/user/addFav/',
-      saveMusic:'http://localhost:3011/musiclist/save/',
+      artists: [],
+      isLiked: false,
+      addFavUrl: "http://localhost:3011/user/addFav/",
+      saveMusic: "http://localhost:3011/musiclist/save/",
       showMore: false,
-      lessDisc: 'lessDisc',
-      commentShow: false,
-    }
+      lessDisc: "lessDisc",
+      commentShow: false
+    };
   },
-  components:{
-    'vComment': vComment,
+  components: {
+    vComment: vComment
   },
   computed: {
     ...mapGetters([
-        'currentIndex',
-        'playlistId',
-        'playlist',
-        'playlistName',
-        'user'
-      ])
+      "currentIndex",
+      "playlistId",
+      "playlist",
+      "playlistName",
+      "user"
+    ])
   },
-  methods:{
-    ...mapActions([
-      'getSongId',
-    ]),
-     addFav: function(music){
-      let vm = this
-      if(vm.user){
+  mounted: function() {
+    this.getPlaylist();
+    this.getSonglist();
+    this.$store.commit("setplayId", this.$route.params.playlistId);
+  },
+  watch: {
+    // 如果路由有变化，会再次执行该方法
+    $route: function() {
+      this.getPlaylist();
+      this.getSonglist();
+      this.$store.commit("setplayId", this.$route.params.playlistId);
+    }
+  },
+  methods: {
+    ...mapActions(["getSongId"]),
+    test() {
+      console.log(123);
+    },
+    addFav: function(music) {
+      let vm = this;
+      if (vm.user) {
         let favMusic = {
           userId: vm.user._id,
           musicId: music.id,
           musicName: music.name
-        }
+        };
         let singleMusic = {
           musicName: music.name,
           wyyId: music.id,
@@ -103,156 +118,150 @@ export default {
           artistName: music.artists[0].name,
           duration: music.duration,
           picUrl: music.album.picUrl,
-          isLiked: true,
-        }
-        vm.$http.post(vm.addFavUrl+vm.user._id, favMusic)
-          .then(
-            vm.$http.post(vm.saveMusic, singleMusic)
-          )
-        }else{
-          console.log("login please")
-        }
-     },
-     addFavList: function(playlistName){
-        let vm = this
-        if(vm.user){
-          let favList = {
-            userId: vm.user._id,
-            playlistId: vm.$route.params.playlistId,
-            playlistName: vm.playlistName,
-            playlistCover: vm.playlist_detail.cover,
-          }
-          vm.$http.post(vm.addFavUrl+vm.user._id, favList)
-          //   .then(
-          //     vm.$http.post(vm.saveMusic, singleMusic)
-          // )
-        }else{
-          console.log("login please")
-        }
-        
-     },
-     getPlaylist: function(){
-        let vm = this
-        vm.$http.get(vm.apiUrl+vm.$route.params.playlistId)
-          .then((response) => {
-              vm.playlist_detail = response.data.data;
-              this.$store.commit('setplaylistName',response.data.data.title)
-          })
-          .catch(function(response) {
-              console.log(response)
-          })
-     },
-     getSonglist: function(){
-        let vm = this
-        vm.$http.get(vm.apiUrl1+vm.$route.params.playlistId)
-          .then((response) => {
-              vm.songlist = response.data.data;
-              this.$store.commit('setplaylist',response.data.data)
-          })
-          .catch(function(response) {
-              console.log(response)
-          })
-     },
-     showMoreLess: function(){
-      let vm = this
-      vm.showMore = ! vm.showMore
-     },
-     showComment: function(){
-      let vm = this
-      vm.commentShow = ! vm.commentShow
-     },
-     present: function(){
-      var myAudio = document.getElementById('myAudio')
-      var length = myAudio.currentTime/myAudio.duration*100;
-      $('.basebar .progressbar').width(length+'%');//设置进度条长度
-     },
-     presentCount: function(){
-      setInterval(this.present(),500)
-     },
-     setIndex: function(id){
+          isLiked: true
+        };
+        vm.$http
+          .post(vm.addFavUrl + vm.user._id, favMusic)
+          .then(vm.$http.post(vm.saveMusic, singleMusic));
+      } else {
+        console.log("login please");
+      }
+    },
+    addFavList: function(playlistName) {
+      let vm = this;
+      if (vm.user) {
+        let favList = {
+          userId: vm.user._id,
+          playlistId: vm.$route.params.playlistId,
+          playlistName: vm.playlistName,
+          playlistCover: vm.playlist_detail.cover
+        };
+        vm.$http.post(vm.addFavUrl + vm.user._id, favList).then(res => {
+          console.log(res.data);
+          vm.$store.commit("updateUser", res.data.data);
+        });
+      } else {
+        console.log("login please");
+      }
+    },
+    getPlaylist: function() {
+      let vm = this;
+      vm.$http
+        .get(vm.apiUrl + vm.$route.params.playlistId)
+        .then(response => {
+          vm.playlist_detail = response.data.data;
+          this.$store.commit("setplaylistName", response.data.data.title);
+        })
+        .catch(function(response) {
+          console.log(response);
+        });
+    },
+    getSonglist: function() {
+      let vm = this;
+      vm.$http
+        .get(vm.apiUrl1 + vm.$route.params.playlistId)
+        .then(response => {
+          vm.songlist = response.data.data;
+          this.$store.commit("setplaylist", response.data.data);
+        })
+        .catch(function(response) {
+          console.log(response);
+        });
+    },
+    showMoreLess: function() {
+      let vm = this;
+      vm.showMore = !vm.showMore;
+    },
+    showComment: function() {
+      let vm = this;
+      vm.commentShow = !vm.commentShow;
+    },
+    present: function() {
+      var myAudio = document.getElementById("myAudio");
+      var length = myAudio.currentTime / myAudio.duration * 100;
+      $(".basebar .progressbar").width(length + "%"); //设置进度条长度
+    },
+    presentCount: function() {
+      setInterval(this.present(), 500);
+    },
+    setIndex: function(id) {
       let songId = id;
-      this.$store.commit('setcurrentIndex',songId)
-     }
+      this.$store.commit("setcurrentIndex", songId);
+    }
   },
   filters: {
-    moment: function (date) {
-      return moment(date).format('mm:ss');
+    moment: function(date) {
+      return moment(date).format("mm:ss");
     }
-  },
-  
-  created: function() {
-    this.getPlaylist()
-    this.getSonglist()
-    this.$store.commit('setplayId',this.$route.params.playlistId)
-  },
-}	
+  }
+};
 </script>
 <style scoped="scoped" lang="Sass">
-  #playlist{
-    text-align: left;
+#playlist {
+  text-align: left;
+}
+.isliked {
+  display: inline-block;
+  color: #f00;
+}
+.playlist {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-around;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(204, 204, 204, 0.5);
+}
+.playlistCover {
+  border-radius: 3px;
+  width: 200px;
+  height: 200px;
+}
+.playlistInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 35px;
+}
+.lessDisc {
+  max-height: 3em;
+  overflow: hidden;
+}
+.moreDisc{
+  overflow: hidden;
+  max-height: 99999em;
+}
+.showMoreBtn {
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.showLessBtn {
+  cursor: pointer;
+  transform: rotate(-180deg);
+  transition: all 0.3s;
+}
+thead {
+  th {
+    text-align: center;
   }
-  .isliked{
-    display: inline-block;
-    color:#f00;
-  }
-  .playlist{
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-around;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(204,204,204,0.5)
-  }
-  .playlistCover{
-    border-radius: 3px;
-    width: 200px;
-    height: 200px;
-  }
-  .playlistInfo{
-    display: flex;
-    flex-direction: column;
-    margin-left: 15px;
-  }
-  .moreDisc{
-  }
-  .lessDisc{
-    overflow : hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-  }
-  .showMoreBtn{
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-  .showLessBtn{
-    cursor: pointer;
-    transform: rotate(-180deg);
-    transition: all 0.3s;
-  }
-  thead{
-    th{
-      text-align: center;
-    }
-  }
-  tbody{
-    tr:hover{
-      cursor: pointer;
-    }
-    td{
-      width: 50px;
-    }
-  }
-  .p_c_tab{
-    padding-left: 10px;
-    display: inline-block;
-    text-align:center;
+}
+tbody {
+  tr:hover {
     cursor: pointer;
   }
-  .addFavlist{
-    width: 20px;
-    height: 20px;
-    margin-left: 10px;
-    cursor: pointer;
+  td {
+    width: 50px;
   }
+}
+.p_c_tab {
+  padding-left: 10px;
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+}
+.addFavlist {
+  width: 20px;
+  height: 20px;
+  margin-left: 10px;
+  cursor: pointer;
+}
 </style>

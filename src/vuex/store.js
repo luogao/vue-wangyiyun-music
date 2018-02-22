@@ -8,24 +8,24 @@ vue.use(Vuex)
 
 const state = {
     commentUrl: 'http://localhost:3011/user/comment/',
-    comments: {},
-    playlistId: '',
-    playlistCover: '',
+    comments: [],
+    playlistId: null,
+    playlistCover: null,
     isLogin: false,
     isAdmin: false,
-    songId: '',
-    musicName: '',
-    currentIndex: '',
-    musicArtist: '',
+    songId: null,
+    musicName: null,
+    currentIndex: null,
+    musicArtist: null,
     canPlayMsg: '歌曲加载失败',
     canPlay: false,
     playIng: false,
     songlistUrl: "http://localhost:3011/song_list/",
     playlist: [],
-    playlistName: '',
-    user: '',
-    music: '',
-    albumPic: '',
+    playlistName: null,
+    user: null,
+    music: null,
+    albumPic: null,
 }
 const getters = {
     currentIndex: function(state) {
@@ -45,6 +45,9 @@ const getters = {
     }
 }
 const mutations = {
+    updateUser(state, newVal){
+        state.user = newVal
+    },
     setplayId: (state, playlistId) => {
         state.playlistId = playlistId
     },
@@ -74,13 +77,13 @@ const mutations = {
         let localUser = localStorage.getItem("user")
         if (localUser) {
             var userId = JSON.parse(localUser)
-            vue.http.get('http://localhost:3011/user/userInfo/'+userId)
-            .then((response)=>{
-                state.user = response.data.data
-            })
-            .catch(()=>{
-                console.log("登录失败")
-            })
+            vue.http.get('http://localhost:3011/user/userInfo/' + userId)
+                .then((response) => {
+                    state.user = response.data.data
+                })
+                .catch(() => {
+                    console.log("登录失败")
+                })
             state.isLogin = true;
             if (state.user.role >= 10) {
                 state.isAdmin = true;
@@ -102,7 +105,7 @@ const mutations = {
         state.songId = songId
         vue.http.get('http://localhost:3011/song/' + state.songId)
             .then((response) => {
-                state.music = response.data.songs[0].mp3Url;
+                state.music = `http://music.163.com/song/media/outer/url?id=${state.songId}.mp3`;
                 state.albumPic = response.data.songs[0].album.picUrl;
                 state.musicName = response.data.songs[0].name;
                 state.musicArtist = response.data.songs[0].artists[0].name;
@@ -110,12 +113,11 @@ const mutations = {
                 state.canPlay = true;
                 audio.addEventListener("canplaythrough",
                     function() {
-                        state.canPlayMsg = '歌曲加载成功';
+                        console.log(123)
                         state.playIng = true;
                     }, false);
                 setTimeout(function() {
                     state.canPlay = false;
-                    state.canPlayMsg = '歌曲加载失败';
                 }, 2000)
             })
             .catch(function(response) {
@@ -131,7 +133,7 @@ const mutations = {
             myAudio.pause();
             state.playIng = !state.playIng
         }
-    },
+    }
 }
 
 // action不用再去外面定义 可以直接写在构建参数里

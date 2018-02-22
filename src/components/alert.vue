@@ -1,6 +1,6 @@
 <template>
 	<div class="myAlert">
-		{{$store.state.canPlayMsg}}
+		{{$store.state.canPlay?'歌曲加载成功':'歌曲加載失敗'}}
 	</div>
 </template>
 

@@ -32,9 +32,6 @@ export default {
       nickName:'',
     }
   },
-  created: function(){
-
-  },
   methods:{
   	signupPlz : function(){
   		var vm = this

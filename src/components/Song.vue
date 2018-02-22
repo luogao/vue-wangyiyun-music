@@ -35,30 +35,17 @@ export default {
   data () {
     return {
       msg: 'this is song',
-      playlistId:'',
       apiUrl:'http://localhost:3011/song/',
-      music:'',
+      music:null,
       albumPic:[],
       playIng: false,
     }
-  },
-  created: function() {
   },
   methods:{
     ...mapActions([
         'musicPlay',
         'nextSong'
-      ]),
-    getSong: function (){
-      this.$http.get(this.apiUrl+this.$route.params.songId)
-      .then((response) => {
-          this.music = response.data.songs[0].mp3Url;
-          this.albumPic = response.data.songs[0].album.picUrl;
-      })
-      .catch(function(response) {
-          console.log(response)
-      })
-    },
+      ])
   },
   computed: {
     ...mapGetters([

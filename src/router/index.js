@@ -16,44 +16,41 @@ export default new Router({
   mode: 'history',
   routes: [
     {
-    	path:'/',
-    	name: 'Recommend',
-	    component: Recommend
-    },
-    {
-    	path:'/playlist/:playlistId',
-    	name: 'Playlist',
-	    component: Playlist
-    },
-    {
-    	path:'/song/:songId',
-    	name: 'Song',
-	    component: vSong
-    },
-    {
-      path:'/signup',
-      name:'Signup',
+      path: '/',
+      name: 'Home',
+      component: Recommend
+    }, {
+      path: '/recommend',
+      name: 'Recommend',
+      component: Recommend
+    }, {
+      path: '/playlist/:playlistId',
+      name: 'Playlist',
+      component: Playlist
+    }, {
+      path: '/song/:songId',
+      name: 'Song',
+      component: vSong
+    }, {
+      path: '/signup',
+      name: 'Signup',
       component: Signup
-    },
-    {
-      path:'/userlist',
-      name:'Userlist',
+    }, {
+      path: '/userlist',
+      name: 'Userlist',
       component: Userlist
-    },
-    {
-      path:'/login',
-      name:'Login',
+    }, {
+      path: '/login',
+      name: 'Login',
       component: Login
-    },
-    {
-      path:'/userInfo/:userId',
-      name:'Userinfo',
+    }, {
+      path: '/userInfo/:userId',
+      name: 'Userinfo',
       component: Userinfo
-    },
-    {
-      path:'/test',
-      name:'Test',
-      component:Test
+    }, {
+      path: '/test',
+      name: 'Test',
+      component: Test
     }
   ]
 })

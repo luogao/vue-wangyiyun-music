@@ -24,7 +24,7 @@ export default {
   name: 'signup',
   data () {
     return {
-      msg: 'please signup first',
+      msg: '登录',
       signup:'http://localhost:3011/user/signup',
       name:'',
       password:'',

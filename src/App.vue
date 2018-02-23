@@ -12,13 +12,13 @@
           <router-link :to="{ name: 'Login'}">登录</router-link>
         </span>
         <span class="userCover" v-else>
-          <router-link :to="{ name: 'Userinfo', params: { userId: $store.state.user._id ? $store.state.user._id : 0 }}"></router-link>
+          <router-link v-if="$store.state.user" :to="{ name: 'Userinfo', params: { userId: $store.state.user._id }}"></router-link>
         </span>
       </div>
     </div>
     <div class="col-md-3 leftSide plr0 ">
       <router-link :to="{ name: 'Recommend'}" class="leftLink" exact>发现音乐</router-link>
-      <div class="col-md-12 plr0 userFavlist" v-if="$store.state.isLogin">
+      <div class="col-md-12 plr0 userFavlist" v-if="$store.state.isLogin  && $store.state.user">
         <p v-for="(favlist,index) in $store.state.user.favPlayList" :key="index" :title="favlist.playlistName">
           <router-link :to="{ name: 'Playlist',params: { playlistId: favlist.playlistId }}" class="leftLink">{{favlist.playlistName}}</router-link>
         </p>

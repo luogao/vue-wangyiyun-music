@@ -26,7 +26,7 @@ export default {
   name: 'login',
   data () {
     return {
-      msg: 'welcome',
+      msg: '登录',
       login:'http://localhost:3011/user/login',
       name:'',
       password:'',
@@ -47,11 +47,11 @@ export default {
 			}
 		vm.$http.post(vm.login,user)
 		.then((response) => {
-			if(response.data.data == 'user not exist !'){
-				vm.loginMsg = response.data.data + 'please signup first'
+			if(response.data.data == '用户不存在!'){
+				vm.loginMsg = response.data.data + '请先注册'
 				vm.plzSignin = true
-			}else if(response.data.data == 'wrong password'){
-				vm.loginMsg = response.data.data + " try again"
+			}else if(response.data.data == '密码错误'){
+				vm.loginMsg = response.data.data + "再试一次"
 				return false
 			}else{
 				vm.loginMsg = response.data.data
